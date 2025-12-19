@@ -1,0 +1,35 @@
+{
+  "model": "local",
+  "language": "cz",
+  "max_tokens": 1024,
+  "temperature": 0.7,
+  "offline_mode": true,
+  "cache": {
+    "enabled": true,
+    "ttl": 3600,
+    "max_size": "100MB"
+  },
+  "models": {
+    "local": {
+      "name": "UWP Local Model",
+      "type": "rule_based",
+      "version": "1.0.0"
+    },
+    "online": {
+      "name": "GPT-3.5",
+      "api_key": "",
+      "endpoint": "https://api.openai.com/v1"
+    }
+  },
+  "features": {
+    "chat": true,
+    "code_analysis": true,
+    "text_generation": true,
+    "sentiment_analysis": true
+  },
+  "prompts": {
+    "default": "Jsi UWP AI asistent. Odpovídej stručně a užitečně.",
+    "coding": "Jsi programátorský asistent. Pomáhej s kódem a debugováním.",
+    "creative": "Jsi kreativní asistent. Pomáhej s nápady a tvorbou."
+  }
+}
