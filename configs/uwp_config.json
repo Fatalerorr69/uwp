@@ -1,59 +1,22 @@
+# configs/uwp_config.json
 {
-  "version": "4.0.0",
-  "name": "Universal Workspace Project",
-  "author": "Fatalerorr69",
-  "home": "$HOME/.universal-workspace",
-  "modules": {
-    "ai": {
-      "enabled": true,
-      "offline_mode": true,
-      "auto_update": false
-    },
-    "dev": {
-      "enabled": true,
-      "templates": ["basic", "node", "python", "react"],
-      "auto_lint": true
-    },
-    "docker": {
-      "enabled": true,
-      "compose_version": "2.20.0",
-      "auto_cleanup": false
-    },
-    "terminal": {
-      "enabled": true,
-      "theme": "uwp",
-      "plugins": ["git-prompt"]
-    },
-    "validator": {
-      "enabled": true,
-      "auto_validate": true,
-      "log_level": "INFO"
-    },
-    "deployment": {
-      "enabled": true,
-      "auto_backup": true,
-      "backup_retention": 7
-    }
+  "version": "5.0.0",
+  "docker": {
+    "enabled": true,
+    "compose_version": "3.8",
+    "network": "uwp-network",
+    "services": ["core", "ai", "db", "redis", "nginx"]
   },
-  "paths": {
-    "modules": "$HOME/.universal-workspace/modules",
-    "configs": "$HOME/.universal-workspace/configs",
-    "logs": "$HOME/.universal-workspace/logs",
-    "cache": "$HOME/.universal-workspace/cache"
+  "security": {
+    "encryption": true,
+    "backup_encryption": true,
+    "ssl_enabled": true,
+    "firewall_enabled": true
   },
-  "cli": {
-    "command": "uwp",
-    "symlink": "/usr/local/bin/uwp",
-    "auto_complete": true
-  },
-  "logging": {
-    "level": "INFO",
-    "max_size": "10MB",
-    "retention": 30
-  },
-  "update": {
-    "auto_check": true,
-    "channel": "stable",
-    "source": "github"
+  "monitoring": {
+    "enabled": true,
+    "metrics_port": 9090,
+    "grafana_port": 3001,
+    "alerting": true
   }
 }
