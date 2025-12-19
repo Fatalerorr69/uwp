@@ -1,0 +1,25 @@
+{
+  "name": "uwp-dev-module",
+  "version": "1.0.0",
+  "description": "UWP Development Module",
+  "main": "dev_main.js",
+  "scripts": {
+    "start": "node dev_main.js",
+    "lint": "eslint .",
+    "test": "jest",
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "inquirer": "^8.2.6"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0",
+    "@types/node": "^20.6.0"
+  },
+  "keywords": ["uwp", "development", "tools"],
+  "author": "Fatalerorr69",
+  "license": "MIT"
+}
