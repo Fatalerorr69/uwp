@@ -1,0 +1,30 @@
+{
+  "projects": [],
+  "templates": ["basic", "node", "python", "react"],
+  "editor": {
+    "default": "code",
+    "available": ["code", "vim", "nano", "sublime"]
+  },
+  "quality": {
+    "auto_lint": true,
+    "auto_format": true,
+    "lint_rules": "standard",
+    "formatter": "prettier"
+  },
+  "git": {
+    "enabled": true,
+    "auto_commit": false,
+    "default_branch": "main",
+    "remote": "origin"
+  },
+  "build": {
+    "auto_build": false,
+    "build_command": "npm run build",
+    "test_command": "npm test"
+  },
+  "paths": {
+    "projects": "$HOME/Projects",
+    "templates": "$HOME/.universal-workspace/modules/dev_module/templates",
+    "global_modules": "$HOME/.npm-global"
+  }
+}
