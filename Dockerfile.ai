@@ -1,0 +1,43 @@
+# Dockerfile.ai
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+
+LABEL maintainer="UWP AI Team"
+LABEL version="5.0.0-ai"
+
+# Nastavení Python
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    UWP_HOME=/opt/uwp
+
+# Instalace závislostí
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# AI specifické balíčky
+RUN pip install --no-cache-dir \
+    transformers \
+    sentence-transformers \
+    torchvision \
+    openai \
+    langchain \
+    chromadb \
+    fastapi \
+    uvicorn
+
+WORKDIR ${UWP_HOME}
+
+# Kopírování AI modulu
+COPY --chown=1000:1000 modules/ai_module ./modules/ai_module
+COPY --chown=1000:1000 configs/ai_config.json ./configs/
+
+# Nastavení uživatele
+USER 1000
+
+# Spuštění AI API serveru
+EXPOSE 5000
+CMD ["uvicorn", "modules.ai_module.ai_api:app", "--host", "0.0.0.0", "--port", "5000"]

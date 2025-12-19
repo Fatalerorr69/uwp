@@ -1,0 +1,169 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  uwp-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uwp-core
+    hostname: uwp-core
+    restart: unless-stopped
+    ports:
+      - "8080:8080"      # Web UI
+      - "3000:3000"      # Dev server
+      - "5000:5000"      # AI API
+    environment:
+      - UWP_MODE=production
+      - UWP_DEBUG=false
+      - TZ=Europe/Prague
+    env_file:
+      - .env
+    volumes:
+      - uwp-data:/opt/uwp/data
+      - uwp-logs:/opt/uwp/logs
+      - uwp-projects:/opt/uwp/projects
+      - ./configs:/opt/uwp/configs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - uwp-network
+    healthcheck:
+      test: ["CMD", "bash", "/opt/uwp/scripts/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  uwp-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai
+    container_name: uwp-ai
+    hostname: uwp-ai
+    restart: unless-stopped
+    depends_on:
+      - uwp-core
+    environment:
+      - AI_MODEL=uwp-v5
+      - AI_OFFLINE=true
+    volumes:
+      - ai-models:/opt/uwp/ai/models
+      - ai-cache:/opt/uwp/ai/cache
+    networks:
+      - uwp-network
+    command: ["python3", "/opt/uwp/modules/ai_module/ai_main.py", "--service"]
+
+  uwp-db:
+    image: postgres:15-alpine
+    container_name: uwp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-uwp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-uwp123}
+      POSTGRES_DB: ${DB_NAME:-uwp}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - uwp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-uwp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  uwp-redis:
+    image: redis:7-alpine
+    container_name: uwp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - uwp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  uwp-nginx:
+    image: nginx:alpine
+    container_name: uwp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - uwp-logs:/var/log/nginx
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - uwp-core
+    networks:
+      - uwp-network
+
+  uwp-monitoring:
+    image: grafana/grafana:latest
+    container_name: uwp-monitoring
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/dashboards:/etc/grafana/provisioning/dashboards:ro
+    networks:
+      - uwp-network
+
+  uwp-portainer:
+    image: portainer/portainer-ce:latest
+    container_name: uwp-portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer-data:/data
+    networks:
+      - uwp-network
+
+volumes:
+  uwp-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/volumes/data
+  uwp-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/volumes/logs
+  uwp-projects:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/volumes/projects
+  ai-models:
+    driver: local
+  ai-cache:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  grafana-data:
+    driver: local
+  portainer-data:
+    driver: local
+
+networks:
+  uwp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
