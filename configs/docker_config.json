@@ -1,0 +1,51 @@
+{
+  "enabled": true,
+  "version": "24.0.0",
+  "compose_version": "2.20.0",
+  "settings": {
+    "auto_start": false,
+    "resource_limits": {
+      "cpus": "2",
+      "memory": "4g",
+      "swap": "1g"
+    },
+    "logging": {
+      "driver": "json-file",
+      "max_size": "10m",
+      "max_files": "3"
+    }
+  },
+  "templates": {
+    "node": "node.dockerfile",
+    "python": "python.dockerfile",
+    "react": "react.dockerfile",
+    "compose": "docker-compose.yml"
+  },
+  "utilities": {
+    "cleanup": {
+      "enabled": true,
+      "schedule": "weekly",
+      "remove_untagged": true
+    },
+    "monitoring": {
+      "enabled": true,
+      "interval": 60,
+      "alert_on_failure": true
+    }
+  },
+  "registries": {
+    "dockerhub": {
+      "username": "",
+      "use_login": false
+    },
+    "github": {
+      "enabled": false,
+      "username": ""
+    }
+  },
+  "security": {
+    "non_root": true,
+    "scan_images": false,
+    "vulnerability_check": false
+  }
+}
